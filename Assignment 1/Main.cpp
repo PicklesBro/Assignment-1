@@ -278,10 +278,7 @@ public:
 
 		stringstream s;
 
-		for (int i = 0; i < numContestants; i++)
-		{
-			cout << contestantList[i]->toString() << "\n";
-		}
+		
 
 		cout <<contestantList[arrayIndex]->toString();
 		

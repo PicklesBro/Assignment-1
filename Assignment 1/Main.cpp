@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <time.h>
 using namespace std;
 
 class AttackInfo
@@ -51,14 +52,14 @@ class BaseCharacter
 			return primaryAttack();
 		}
 
-		AttackInfo* primaryAttack()
+	    AttackInfo* primaryAttack()
 		{
 		
 			AttackInfo* getPrimaryAttack = new AttackInfo(baseDamage, "strikes at");
 			return getPrimaryAttack;
 		}
 
-		AttackInfo secondaryAttack()
+		AttackInfo* secondaryAttack()
 		{
 			
 		}
@@ -125,18 +126,35 @@ class WarriorClass : public BaseCharacter
 
 		AttackInfo* getAttack()
 		{
-			//AttackInfo* getPrimaryAttack = new AttackInfo(baseDamage, "strikes at");
-			//damage = baseDamage + baseDamage * (strength / 20);
+			int randomNumber = rand() % 100 + 1;
+
+			if (randomNumber < 90)
+			{
+				return primaryAttack();
+			}
+			return secondaryAttack();
 		}
 
 		AttackInfo* primaryAttack()
 		{
-
+			AttackInfo* getPrimaryAttack = new AttackInfo(baseDamage + baseDamage * (strength/2), "Strikes at ");
+			return getPrimaryAttack;
 		}
 
 		AttackInfo* secondaryAttack()
 		{
-
+			if (dodgeChance < 50)
+			{
+				dodgeChance += (agility / 2);
+			}
+			else 
+			{
+				dodgeChance = 50;
+			}
+			
+			
+			AttackInfo* warriorSecondaryAttack = new AttackInfo(2, "Gets more agile and leaps at ");
+			return warriorSecondaryAttack;
 		}
 
 		WarriorClass takeDamage()
@@ -147,6 +165,7 @@ class WarriorClass : public BaseCharacter
 		string toString()
 		{
 			stringstream s;
+			s << "Type: Warrior" << endl;
 			s << BaseCharacter::toString();
 			s << "Resistance: " << resistance << "\n";
 
@@ -165,6 +184,13 @@ public:
 
 	AttackInfo* getAttack()
 	{
+		int randomNumber = rand() % 100 + 1;
+		
+		if (randomNumber < 70)
+		{
+			return primaryAttack();
+		}
+
 		return secondaryAttack();
 	}
 
@@ -172,13 +198,14 @@ public:
 
 	AttackInfo* secondaryAttack()
 	{
-		AttackInfo* mage1 = new AttackInfo(baseDamage + baseDamage * (intelligence / 20.0), "Chucks a fireball");
-		return mage1;
+		AttackInfo* mageSecondaryAttack = new AttackInfo(baseDamage + baseDamage * (intelligence / 20.0), "Chucks a fireball");
+		return mageSecondaryAttack;
 	}
 
 	string toString()
 	{
 		stringstream s;
+		s << "Type: Mage" << endl;
 		s << BaseCharacter::toString();
 
 		return s.str();
@@ -196,19 +223,29 @@ public:
 
 	AttackInfo* getAttack()
 	{
+		int randomNumber = rand() % 100 + 1;
 
+		if (randomNumber < 60)
+		{
+			return primaryAttack();
+		}
+
+		return secondaryAttack();
 	}
 
 
 
 	AttackInfo* secondaryAttack()
 	{
-
+		presentHp += (5 + intelligence / 20);
+		AttackInfo* priestSA = new AttackInfo(0, "Heals themselves and smiles at ");
+		return priestSA;
 	}
 
 	string toString()
 	{
 		stringstream s;
+		s << "Type: Priest" << endl;
 		s << BaseCharacter::toString();
 
 		return s.str();
@@ -278,12 +315,15 @@ public:
 
 		stringstream s;
 
-		
-
-		cout <<contestantList[arrayIndex]->toString();
-		
+		// Displays choosable contestants
+		for (int i = 0; i < numContestants; i++)
+		{
+			if (contestantList[arrayIndex] == contestantList[i])
+			{
+				cout << contestantList[arrayIndex]->toString() << endl;
+			}
+		}
 		return s.str();
-		
 	}
 
 
@@ -295,6 +335,7 @@ public:
 		// Checks all contestants and prints there toString function
 		for (int i = 0; i < numContestants; i++)
 		{
+			cout << "ID: " << i << endl;
 			cout << contestantList[i]->toString() << "\n";
 			
 		}
@@ -304,16 +345,67 @@ public:
 
 	void simulateChallenge(int contestant1, int contestant2)
 	{
-		BaseCharacter* c1 = contestantList[contestant1];
-		BaseCharacter* c2 = contestantList[contestant2];
+		bool contestantEntry1 = false;
+		bool contestantEntry2 = false;
+
+		// Displays choosable contestants
+		for (int i = 0; i < numContestants; i++)
+		{
+			if (contestantList[contestant1] == contestantList[i])
+			{
+				contestantEntry1 = true;
+			}
+
+			if (contestantList[contestant2] == contestantList[i])
+			{
+				contestantEntry2 = true;
+			}
+		}
+
+		// Two valid contestants for the challenge
+		if (contestantEntry1 == true && contestantEntry2 == true)
+		{
+			BaseCharacter* c1 = contestantList[contestant1];
+			BaseCharacter* c2 = contestantList[contestant2];
+			AttackInfo* attackInfo;
+			int roundNumber = 0;
+
+			system("CLS");
+
+			// Starting Battle
+			while (c1->getPresentHp() >= 0 || c2->getPresentHp() >= 0)
+			{
+				roundNumber++;
+				attackInfo = c1->getAttack();
+				cout << attackInfo->damage;
+			
+				//cout << "Round " << roundNumber << endl << "\n";
+						
+				//cout << c1->getName() << " and " << c2->getName();
+			}
+
+			
+		}
+
+		// Back to main menu
+		else
+		{
+			cout << "Please select 2 characters" << endl;
+			return;
+		}
+
 
 		
 
+	
 	}
 
 
 };
 
+
+	
+	
 
 
 void userMenu()
@@ -335,13 +427,20 @@ void addContestant(ArenaManager & am)
 	int dodge; 
 	int baseDamage; 
 	int resistance;
-	char type;
+	char type = 'o';
 
 	system("CLS");
+	cout << "     [Character Creation]" << endl << "\n";
 	cout << "Pick a class for your character..." << endl;
 	cout << "W = Warrior, M = Mage, P = Priest" << endl;
 
-	cin >> type;
+	// Makes sure user picks a class type
+	while (type != 'w' && type != 'm' && type != 'p' && type != 'W' && type != 'M' && type != 'P')
+	{
+		cout << "Select: ";
+		cin >> type;
+	}
+	
 
 	getline(cin, name);
 	cout << "Enter the name of your character: ";
@@ -388,23 +487,53 @@ void addContestant(ArenaManager & am)
 void viewAllContestants(ArenaManager& am)
 {
 	system("CLS");
+	cout << "     [All Characters]" << endl << "\n";
 	am.viewAllContestants();
 	system("Pause");
 }
 
 void viewContestant(ArenaManager& am)
 {
+
+	int userSelect;
 	system("CLS");
-	am.viewContestant(0);
+	cout << "     [Character Viewer]" << endl << "\n";
+	am.viewAllContestants();
+	
+	cout << "Select an character ID to view: ";
+	cin >> userSelect;
+	cout << endl;
+	system("CLS");
+	am.viewContestant(userSelect);
 	system("Pause");
 }
 
+void runArena(ArenaManager& am)
+{
+	int contestantSelect1;
+	int contestantSelect2;
 
+	system("CLS");
+	cout << "     [Battle Arena]" << endl << "\n";
+	
+	am.viewAllContestants();
 
+	cout << "Select Two Contestants to enter the arena!" << endl << "\n";
+	
+	cout << "Contestant 1: ";
+	cin >> contestantSelect1;
 
+	cout << "Contestant 2: ";
+	cin >> contestantSelect2;
+
+	am.simulateChallenge(contestantSelect1, contestantSelect2);
+	system("Pause");
+
+}
 
 int main()
 {
+	srand(time(NULL));
 	ArenaManager am = ArenaManager(10);
 	
 
@@ -419,8 +548,13 @@ int main()
 		
 		userMenu();
 		cout << endl;
-		cout << "userInput" << endl;
-		cin >> userInput;
+		cout << "userInput: ";
+	
+		while (userInput < 1 || userInput > 5)
+		{
+			cin >> userInput;
+		}
+		
 
 		if (userInput == addCharacter)
 		{
@@ -436,13 +570,14 @@ int main()
 		}
 		else if (userInput == runCombat)
 		{
-
+			runArena(am);
 		}
 		else if (userInput == Exit)
 		{
 			cout << "Thanks for playing!";
 			return 0;
 		}
+		userInput = 0; 
 		
 	}
 	

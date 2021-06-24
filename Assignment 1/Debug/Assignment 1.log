@@ -1,4 +1,5 @@
 ﻿  Main.cpp
-C:\Users\Dylan Tran\source\repos\Summer School Advanced Programming\Assignment 1\Assignment 1\Main.cpp(175,49): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\Users\Dylan Tran\source\repos\Summer School Advanced Programming\Assignment 1\Assignment 1\Main.cpp(332,17): warning C4101: 'newCharacter': unreferenced local variable
+C:\Users\Dylan Tran\source\repos\Summer School Advanced Programming\Assignment 1\Assignment 1\Main.cpp(201,63): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+C:\Users\Dylan Tran\source\repos\Summer School Advanced Programming\Assignment 1\Assignment 1\Main.cpp(421,17): warning C4101: 'newCharacter': unreferenced local variable
+C:\Users\Dylan Tran\source\repos\Summer School Advanced Programming\Assignment 1\Assignment 1\Main.cpp(536,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   Assignment 1.vcxproj -> C:\Users\Dylan Tran\source\repos\Summer School Advanced Programming\Assignment 1\Debug\Assignment 1.exe

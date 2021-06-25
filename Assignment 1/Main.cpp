@@ -47,7 +47,7 @@ class BaseCharacter
 	
 		}
 		
-	    AttackInfo* getAttack()
+	    virtual AttackInfo* getAttack()
 		{
 			return primaryAttack();
 		}
@@ -55,7 +55,7 @@ class BaseCharacter
 	    AttackInfo* primaryAttack()
 		{
 		
-			AttackInfo* getPrimaryAttack = new AttackInfo(baseDamage, "strikes at");
+			AttackInfo* getPrimaryAttack = new AttackInfo(baseDamage, "strikes at ");
 			return getPrimaryAttack;
 		}
 
@@ -64,7 +64,7 @@ class BaseCharacter
 			
 		}
 
-		void takeDamage(int amount)
+		virtual void takeDamage(int amount)
 		{
 			presentHp -= amount;
 
@@ -82,6 +82,7 @@ class BaseCharacter
 			s << "Strength: " << strength << "\n";
 			s << "Agility: " << agility << "\n";
 			s << "Intelligence: " << intelligence << "\n";
+			s << "PresentHp: " << presentHp << "\n";
 			s << "MaxHp: " << maxHp << "\n";
 			s << "Dodge: " << dodgeChance << "\n";
 			s << "BaseDamage: " << baseDamage << "\n";
@@ -137,7 +138,7 @@ class WarriorClass : public BaseCharacter
 
 		AttackInfo* primaryAttack()
 		{
-			AttackInfo* getPrimaryAttack = new AttackInfo(baseDamage + baseDamage * (strength/2), "Strikes at ");
+			AttackInfo* getPrimaryAttack = new AttackInfo(baseDamage + baseDamage * (strength/20), "Brutally lashes out at ");
 			return getPrimaryAttack;
 		}
 
@@ -157,9 +158,20 @@ class WarriorClass : public BaseCharacter
 			return warriorSecondaryAttack;
 		}
 
-		WarriorClass takeDamage()
+		void takeDamage(int amount)
 		{
 
+			
+			//presentHp -= amount - (resistance / 100) * amount;
+			
+			// hp 100	amount 20	resistance 10
+
+
+			// Health will never be negative
+			if (presentHp < 0)
+			{
+				presentHp = 0;
+			}
 		}
 
 		string toString()
@@ -198,7 +210,7 @@ public:
 
 	AttackInfo* secondaryAttack()
 	{
-		AttackInfo* mageSecondaryAttack = new AttackInfo(baseDamage + baseDamage * (intelligence / 20.0), "Chucks a fireball");
+		AttackInfo* mageSecondaryAttack = new AttackInfo(baseDamage + baseDamage * (intelligence / 20.0), "throws a fireball at ");
 		return mageSecondaryAttack;
 	}
 
@@ -237,7 +249,17 @@ public:
 
 	AttackInfo* secondaryAttack()
 	{
+		
+		
+		//Heals the priest
 		presentHp += (5 + intelligence / 20);
+	
+		// Cant overheal
+		if (presentHp > maxHp)
+		{
+			presentHp = maxHp;
+		}
+
 		AttackInfo* priestSA = new AttackInfo(0, "Heals themselves and smiles at ");
 		return priestSA;
 	}
@@ -367,25 +389,94 @@ public:
 		{
 			BaseCharacter* c1 = contestantList[contestant1];
 			BaseCharacter* c2 = contestantList[contestant2];
-			AttackInfo* attackInfo;
-			int roundNumber = 0;
-
-			system("CLS");
-
-			// Starting Battle
-			while (c1->getPresentHp() >= 0 || c2->getPresentHp() >= 0)
-			{
-				roundNumber++;
-				attackInfo = c1->getAttack();
-				cout << attackInfo->damage;
 			
-				//cout << "Round " << roundNumber << endl << "\n";
-						
-				//cout << c1->getName() << " and " << c2->getName();
+			BaseCharacter* turn1;
+			BaseCharacter* turn2;
+
+			AttackInfo* attackInfo;
+			
+			int roundNumber = 0;
+			bool turnSwap = false;
+
+
+			int randomNumber = rand() % 100 + 1;
+
+			// Contestant 1 goes first 
+			if (randomNumber > 50)
+			{
+				turn1 = c1;
+				turn2 = c2;
+			}
+			// Contestant 2 goes first by inverting turns
+			else
+			{
+				turn1 = c2;
+				turn2 = c1;
 			}
 
-			
+			// Starting Battle
+			while (c1->getPresentHp() > 0 && c2->getPresentHp() > 0)
+			{
+				system("CLS");
+				roundNumber++;
+
+				cout << "[Round " << roundNumber << "]" << endl << "\n";
+
+				// First Turn
+				if (turn1->getPresentHp() >= 0)
+				{
+					attackInfo = turn1->getAttack();
+					cout << turn1->getName() << " " << attackInfo->description << turn2->getName() << " for " 
+					<< attackInfo->damage << " damage" << endl << "\n";
+
+					// Dodge Attempt
+					int randomNumber = rand() % 100 + 1;
+					
+					if (turn2->getDodgeChance() < randomNumber)
+					{
+						turn2->takeDamage(attackInfo->damage);
+					}
+					// Cant dodge attacks that arent coming for you (Ex Priest heal)
+					else if (attackInfo->damage != 0)
+					{
+						cout << turn2->getName() << " dodged it!" << endl << "\n";
+					}
+				}
+
+				// Second turn
+				if (turn2->getPresentHp() >= 0)
+				{
+					attackInfo = turn2->getAttack();
+					cout << turn2->getName() << " " << attackInfo->description << turn1->getName() << " for "
+					<< attackInfo->damage << " damage"<< endl << "\n";
+
+					// Dodge Attempt
+					int randomNumber = rand() % 100 + 1;
+
+					if (turn1->getDodgeChance() < randomNumber)
+					{
+						turn1->takeDamage(attackInfo->damage);
+					}
+					
+					// Cant dodge attacks that arent damaging (Ex Priest heal)
+					else if(attackInfo->damage != 0)
+					{
+						cout << turn1->getName() << " dodged it!" << endl << "\n";
+					}
+				}
+
+				// End of round stats
+				cout << turn1->getName() << ": " << turn1->getPresentHp() << "/" << turn1->getMaxHp() << endl;
+				cout << turn2->getName() << ": " << turn2->getPresentHp() << "/" << turn2->getMaxHp() << endl;
+				
+				//cout << c1->getName() << ": " << c1->getPresentHp() << "/" << c1->getMaxHp() << endl;
+				//cout << c2->getName() << ": " << c2->getPresentHp() << "/" << c2->getMaxHp() << endl;
+
+				system("PAUSE");
+			}
 		}
+
+		
 
 		// Back to main menu
 		else
@@ -527,7 +618,7 @@ void runArena(ArenaManager& am)
 	cin >> contestantSelect2;
 
 	am.simulateChallenge(contestantSelect1, contestantSelect2);
-	system("Pause");
+	
 
 }
 
